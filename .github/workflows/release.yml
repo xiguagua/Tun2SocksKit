@@ -120,6 +120,22 @@ jobs:
           cd ../iphonesimulator_arm64_x86_64
           lipo -create -o ./libhev-socks5-tunnel.a ./iphonesimulator_arm64/libhev-socks5-tunnel.a ./iphonesimulator_x86_64/libhev-socks5-tunnel.a
           
+      - name: build tvos arm64
+        run: |
+          mkdir tvos_arm64
+          cd temp
+          make clean
+          make PP="xcrun --sdk tvos --toolchain tvos clang" \
+               CC="xcrun --sdk tvos --toolchain tvos clang" \
+               CFLAGS="-arch arm64 -mios-version-min=12.0" \
+               LFLAGS="-arch arm64 -mios-version-min=12.0 -Wl,-Bsymbolic-functions" static
+          libtool -static -o ../tvos_arm64/libhev-socks5-tunnel.a \
+                  bin/libhev-socks5-tunnel.a \
+                  third-part/lwip/bin/liblwip.a \
+                  third-part/yaml/bin/libyaml.a \
+                  third-part/hev-task-system/bin/libhev-task-system.a
+          make clean
+
       - name: Build xcframework
         run: |
           mkdir include
@@ -134,10 +150,12 @@ jobs:
                      -headers ./include \
                      -library ./maccatalyst_arm64_x86_64/libhev-socks5-tunnel.a \
                      -headers ./include \
+                     -library ./tvos_arm64/libhev-socks5-tunnel.a \
+                     -headers ./include \
                      -output ./HevSocks5Tunnel.xcframework
           zip -r HevSocks5Tunnel.xcframework.zip HevSocks5Tunnel.xcframework
           
-      - name: Rende Template
+      - name: Render Template
         run: |
           export TEMP=`shasum -a 256 ./HevSocks5Tunnel.xcframework.zip`
           export CHECKSUM=${TEMP:0:64}
@@ -152,10 +170,10 @@ jobs:
           
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Tun2SocksKit Release ${{ github.event.inputs.version }}!!!
-          commit_user_name: Arror
-          commit_user_email: hallo.maqiang@icloud.com
-          commit_author: Arror <hallo.maqiang@icloud.com>
+          commit_message: Tun2SocksKit Release ${{ github.event.inputs.version }}
+          commit_user_name: xiguagua
+          commit_user_email: rootxigua@live.com
+          commit_author: xiguagua <rootxigua@live.com>
           tagging_message: ${{ github.event.inputs.version }}
           file_pattern: 'Package.swift'
           
