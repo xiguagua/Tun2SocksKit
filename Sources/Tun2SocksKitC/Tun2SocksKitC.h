@@ -2,6 +2,9 @@
 #define Tun2SocksKitC_H
 
 #include <stdint.h>
+#include <sys/_types/_u_char.h>
+#include <sys/_types/_u_int16_t.h>
+#include <sys/_types/_u_int32_t.h>
 
 #define CTLIOCGINFO 0xc0644e03UL
 
